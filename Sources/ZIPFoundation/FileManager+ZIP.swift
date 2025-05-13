@@ -106,7 +106,11 @@ extension FileManager {
         }
 
         for entry in archive {
-            let path = pathEncoding == nil ? entry.path : entry.path(using: pathEncoding!)
+            var path = pathEncoding == nil ? entry.path : entry.path(using: pathEncoding!)
+            //当指定编码时 path为空 导致无法解压，这时候让它取回默认的即可，避免发生解压错误
+            if pathEncoding != nil && path.isEmpty {
+                path = entry.path
+            }
             let entryURL = destinationURL.appendingPathComponent(path)
             guard entryURL.isContained(in: destinationURL) else {
                 throw CocoaError(.fileReadInvalidFileName,
